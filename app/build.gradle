@@ -36,9 +36,9 @@ android {
 
         applicationVariants.all { variant ->
             variant.outputs.each { output ->
-                def fileName = "easysubway_v${variant.versionName}_release_${variant.flavorName}.apk"
+                def fileName = "easysubway_v${variant.versionName}_release.apk"
                 if (variant.buildType.isDebuggable()) {
-                    fileName = "easysubway_v${variant.versionName}_debug_${variant.flavorName}.apk"
+                    fileName = "easysubway_v${variant.versionName}_debug.apk"
                 }
                 output.outputFile = new File(output.outputFile.parent, fileName)
             }
@@ -57,4 +57,5 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     compile "org.jetbrains.anko:anko:$anko_version"
     compile "org.jetbrains.anko:anko-commons:$anko_version"
+    compile 'com.amap.api:map2d:latest.integration'
 }

@@ -1,0 +1,127 @@
+<html xmlns:background-color="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <!--重要meta, 必须!-->
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0,shrink-to-fit=no"/>
+    <title>SUBWAY</title>
+</head>
+<body>
+<div id="mysubway"></div>
+
+<script src="http://webapi.amap.com/subway?v=1.0&amp;key=feb07d10d989756de816728130ec5ea0&amp;callback=cbk"></script>
+<script type="text/javascript">
+    //开启easy模式, 直接完成地铁图基本功能, 无需自己写交互
+    var mysubway;
+    window.cbk = function(){
+        mysubway = subway("mysubway", {
+            // easy: 1
+            adcode:1100,
+            theme: "colorful",
+            doubleclick: {
+                switch: true
+            }
+        });
+        mysubway.event.on("subway.complete", function () {
+        	// var opt = new Object();
+        	// opt.type='start';
+    		// mysubway.addMarker('南锣鼓巷',opt);
+
+    		// mysubway.addInfoWindow('南锣鼓巷');
+
+   //  		var start = '北苑', end = '天安门西';
+   //  		mysubway.setStart(start);
+			// mysubway.setEnd(end);
+   //  		mysubway.route(start, end);
+
+		/*	mysubway.addCustomNode('南锣鼓巷', {
+			    type: "circle",
+			    r: 14,
+			    customClass: "custom_circle"
+			});
+*/
+
+			// mysubway.showLine('8号线');
+		
+			/*mysubway.getLineList(function(result){
+				console.log(result);
+			});*/
+					
+	
+			// mysubway.getCityList(function(result){
+			// 	for(var key in result) {
+			// 	    console.log(key +"  "+ result[key].city+"  "+result[key].name);  
+			// 	}
+				
+			// });
+		
+
+			
+		});
+
+		
+			
+
+		mysubway.event.on('subway.touch', function(){
+			mysubway.clearInfoWindow();
+		});
+
+		mysubway.event.on('lineName.touch', function(ev, info){
+			mysubway.showLine(info.id);
+			var select_obj = qs('#g-select');
+			mysubway.setFitView(select_obj);
+			var center = mysubway.getSelectedLineCenter();
+			mysubway.setCenter(center);
+		});
+
+		mysubway.event.on('station.touch', function(ev,info){
+			var id = info.id;
+			mysubway.stopAnimation();
+			mysubway.addInfoWindow(id,{});
+			var center = mysubway.getStCenter(id);
+			mysubway.setCenter(center);
+		});
+
+		mysubway.event.on('startStation.touch', function(ev,info){
+			mysubway.stopAnimation();
+			mysubway.clearInfoWindow();
+			mysubway.setStart(info.id, {});
+			startInfo = info;
+			route();
+		});
+
+		mysubway.event.on('endStation.touch', function(ev,info){
+			mysubway.stopAnimation();
+			mysubway.clearInfoWindow();
+			mysubway.setEnd(info.id, {});
+			endInfo = info;
+			route();
+		});
+
+		var startInfo={}, endInfo={};
+
+		function route(){
+			if (startInfo.id && endInfo.id) {
+                mysubway.route(startInfo.id, endInfo.id, {});
+                startInfo = {};
+                endInfo = {};
+            }
+		}
+
+		
+    };
+
+		function callJS(){
+			/*var r;
+        	mysubway.getLineList(function(result){
+				r =  result;
+			});
+			return r;*/
+			mysubway.getLineList(function(result){
+				returnLinesData(result);
+			});
+        }
+
+</script>
+</body>
+</html>
