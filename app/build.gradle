@@ -5,17 +5,17 @@ apply plugin: 'kotlin-android-extensions'
 android {
     signingConfigs {
         debug {
-            keyAlias 'binge'
+            /*keyAlias 'binge'
             keyPassword 'binge54'
             storeFile file('E:/EasySubway/app/keystore/debug.jks')
-            storePassword 'binge54'
+            storePassword 'binge54'*/
         }
 
         release {
-            storeFile file(RELEASE_STORE_FILE)
-            storePassword RELEASE_STORE_PASSWORD
-            keyAlias RELEASE_KEY_ALIAS
-            keyPassword RELEASE_KEY_PASSWORD
+//            storeFile file(RELEASE_STORE_FILE)
+//            storePassword RELEASE_STORE_PASSWORD
+//            keyAlias RELEASE_KEY_ALIAS
+//            keyPassword RELEASE_KEY_PASSWORD
         }
     }
     compileSdkVersion 26
@@ -58,4 +58,5 @@ dependencies {
     compile "org.jetbrains.anko:anko:$anko_version"
     compile "org.jetbrains.anko:anko-commons:$anko_version"
     compile 'com.amap.api:map2d:latest.integration'
+    compile 'com.google.code.gson:gson:2.8.1'
 }

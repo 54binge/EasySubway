@@ -45,8 +45,8 @@
 		
 			/*mysubway.getLineList(function(result){
 				console.log(result);
-			});*/
-					
+			});
+				*/	
 	
 			// mysubway.getCityList(function(result){
 			// 	for(var key in result) {
@@ -108,17 +108,16 @@
             }
 		}
 
-		
     };
 
-		function callJS(){
+		function showLines(){
 			/*var r;
         	mysubway.getLineList(function(result){
 				r =  result;
 			});
 			return r;*/
 			mysubway.getLineList(function(result){
-				returnLinesData(result);
+				MyJavaScript.returnLinesData(JSON.stringify(result));
 			});
         }
 
