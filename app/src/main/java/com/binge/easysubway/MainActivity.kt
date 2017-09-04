@@ -18,11 +18,10 @@ import com.gordonwong.materialsheetfab.MaterialSheetFabEventListener
 import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.find
-import org.jetbrains.anko.toast
 
 class MainActivity : AppCompatActivity(), ValueCallback, OnItemClickListener<Line> {
 
-    var mJS : MyJavaScript? = null
+    var mJS: MyJavaScript? = null
     var mMaterialDialog: MaterialSheetFab<Fab>? = null
     var mDataList: List<Line> = ArrayList()
     var mAdapter: SimpleAdapter<Line>? = null
@@ -72,6 +71,8 @@ class MainActivity : AppCompatActivity(), ValueCallback, OnItemClickListener<Lin
 
         mRecyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         mRecyclerView.adapter = mAdapter
+
+        mLocation.setOnClickListener { locationNow() }
     }
 
     override fun onBackPressed() {
@@ -98,5 +99,11 @@ class MainActivity : AppCompatActivity(), ValueCallback, OnItemClickListener<Lin
     override fun onItemClick(t: Line?) {
         mMaterialDialog!!.hideSheet()
         mJS!!.selectLine(t!!.id)
+    }
+
+    fun locationNow() {
+        val coordinate = CoordinateManager.getInstance().coordinate
+        println(coordinate[0] + "  " + coordinate[1])
+        mJS!!.locationNow(coordinate[0], coordinate[1])
     }
 }

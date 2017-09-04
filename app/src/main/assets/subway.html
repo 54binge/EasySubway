@@ -8,7 +8,15 @@
 </head>
 <body>
 <div id="mysubway"></div>
-
+<style type="text/css">
+			    .custom_circle{
+			        width: 30px;
+			        height: 30px;
+			        fill: rgb(0, 122, 255);
+			        fill-opacity: 0.4;
+			        stroke-width: 0;
+			    }
+			</style>
 <script src="http://webapi.amap.com/subway?v=1.0&amp;key=feb07d10d989756de816728130ec5ea0&amp;callback=cbk"></script>
 <script type="text/javascript">
     //开启easy模式, 直接完成地铁图基本功能, 无需自己写交互
@@ -34,12 +42,15 @@
 			// mysubway.setEnd(end);
    //  		mysubway.route(start, end);
 
-		/*	mysubway.addCustomNode('南锣鼓巷', {
-			    type: "circle",
-			    r: 14,
-			    customClass: "custom_circle"
-			});
-*/
+   			/* var detailOpts = {
+			        type: "circle",
+			        r: 14,
+			        customClass: "custom_circle"
+			    };
+
+
+			mysubway.addCustomNode('南锣鼓巷', detailOpts);*/
+
 
 			// mysubway.showLine('8号线');
 		
@@ -122,11 +133,34 @@
         }
 
         function selectLine(id){
+        	mysubway.stopAnimation();
+        	mysubway.clearInfoWindow();
 			mysubway.showLine(id);
 			var select_obj = qs('#g-select');
 			mysubway.setFitView(select_obj);
 			var center = mysubway.getSelectedLineCenter();
 			mysubway.setCenter(center);
+        }
+
+        function locationNow(longitude, latitude){
+        	mysubway.stopAnimation();
+        	mysubway.clearOverlays();
+        	// subwayApi.getNearStation({lnglat: '116.3191270000,39.9766230000'})
+        	var locationStr = longitude+","+latitude;
+        	console.log("location-->"+locationStr);
+        	var info = mysubway.getNearStation({lnglat: locationStr});
+        	console.log("info--->"+info);
+        	if (info!=false) {
+        		// mysubway.addMarker(info, new Object());
+        		mysubway.clearMarker(info);//bug无法清除添加的CustomNode
+        		mysubway.addCustomNode(info,{
+			        type: "circle",
+			        r: 14,
+			        customClass: "custom_circle"
+			    })
+        		var center = mysubway.getStCenter(info);
+        		mysubway.setCenter(center);
+        	}
         }
 
 </script>

@@ -29,24 +29,24 @@ public class MyJavaScript {
         mWebView.evaluateJavascript("javascript:showLines()", null);
     }
 
-    public void showCitys(){
+    public void showCitys() {
         mWebView.evaluateJavascript("javascript:showCitys()", null);
     }
 
-    public void selectLine(String lineId){
-        mWebView.evaluateJavascript("javascript:selectLine("+ lineId +")", null);
+    public void selectLine(String lineId) {
+        mWebView.evaluateJavascript("javascript:selectLine(" + lineId + ")", null);
     }
 
-    public void setStartStation(String stationId){
-        mWebView.evaluateJavascript("javascript:setStartStation("+ stationId +")", null);
+    public void setStartStation(String stationId) {
+        mWebView.evaluateJavascript("javascript:setStartStation(" + stationId + ")", null);
     }
 
-    public void setEndStation(String stationId){
-        mWebView.evaluateJavascript("javascript:setEndStation("+ stationId +")", null);
+    public void setEndStation(String stationId) {
+        mWebView.evaluateJavascript("javascript:setEndStation(" + stationId + ")", null);
     }
 
-    public void location() {
-        mWebView.evaluateJavascript("javascript:location", null);
+    public void locationNow(String longitude, String latitude) {
+        mWebView.evaluateJavascript("javascript:locationNow(" + longitude + "," + latitude + ")", null);
     }
 
 
