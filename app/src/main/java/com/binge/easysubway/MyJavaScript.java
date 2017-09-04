@@ -45,13 +45,31 @@ public class MyJavaScript {
         mWebView.evaluateJavascript("javascript:setEndStation("+ stationId +")", null);
     }
 
-    public void location(){
-        // TODO: 2017/9/2 定位
+    public void location() {
+        mWebView.evaluateJavascript("javascript:location", null);
     }
 
+
+    /*
+    * [
+  {
+    "name": "1号线",
+    "laname": "",
+    "color": "E47878",
+    "id": "110100023110",
+    "status": "1",
+    "shortname": "地铁1号线"
+  }
+]*/
     @JavascriptInterface
-    public void returnLinesData(String data) {
-        mValueCallback.onReceiveValue(ConstantValue.REQUEST_CODE_GET_LINES, data);
+    public void returnLinesData(final String data) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mValueCallback.onReceiveValue(ConstantValue.REQUEST_CODE_GET_LINES, data);
+            }
+        });
+
     }
 
     @JavascriptInterface

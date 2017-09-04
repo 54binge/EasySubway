@@ -121,6 +121,14 @@
 			});
         }
 
+        function selectLine(id){
+			mysubway.showLine(id);
+			var select_obj = qs('#g-select');
+			mysubway.setFitView(select_obj);
+			var center = mysubway.getSelectedLineCenter();
+			mysubway.setCenter(center);
+        }
+
 </script>
 </body>
 </html>
