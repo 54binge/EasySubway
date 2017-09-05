@@ -121,12 +121,7 @@
 
     };
 
-		function showLines(){
-			/*var r;
-        	mysubway.getLineList(function(result){
-				r =  result;
-			});
-			return r;*/
+		function getLines(){
 			mysubway.getLineList(function(result){
 				MyJavaScript.returnLinesData(JSON.stringify(result));
 			});
@@ -136,23 +131,23 @@
         	mysubway.stopAnimation();
         	mysubway.clearInfoWindow();
 			mysubway.showLine(id);
-			var select_obj = qs('#g-select');
-			mysubway.setFitView(select_obj);
 			var center = mysubway.getSelectedLineCenter();
 			mysubway.setCenter(center);
+			var select_obj = qs('#g-select');
+			mysubway.setFitView(select_obj);
         }
 
         function locationNow(longitude, latitude){
         	mysubway.stopAnimation();
+        	mysubway.clearInfoWindow();
         	mysubway.clearOverlays();
-        	// subwayApi.getNearStation({lnglat: '116.3191270000,39.9766230000'})
+
         	var locationStr = longitude+","+latitude;
         	console.log("location-->"+locationStr);
         	var info = mysubway.getNearStation({lnglat: locationStr});
         	console.log("info--->"+info);
         	if (info!=false) {
-        		// mysubway.addMarker(info, new Object());
-        		mysubway.clearMarker(info);//bug无法清除添加的CustomNode
+        		mysubway.removeCustomNode(info);
         		mysubway.addCustomNode(info,{
 			        type: "circle",
 			        r: 14,

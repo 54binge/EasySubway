@@ -25,8 +25,8 @@ public class MyJavaScript {
         mValueCallback = valueCallback;
     }
 
-    public void showLines() {
-        mWebView.evaluateJavascript("javascript:showLines()", null);
+    public void getLines() {
+        mWebView.evaluateJavascript("javascript:getLines()", null);
     }
 
     public void showCitys() {

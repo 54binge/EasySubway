@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity(), ValueCallback, OnItemClickListener<Lin
 
         mMaterialDialog!!.setEventListener(object : MaterialSheetFabEventListener() {
             override fun onShowSheet() {
-                mJS!!.showLines()
+                mJS!!.getLines()
             }
 /*
             override fun onHideSheet() {
