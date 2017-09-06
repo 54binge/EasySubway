@@ -20,9 +20,9 @@
 <script src="http://webapi.amap.com/subway?v=1.0&amp;key=feb07d10d989756de816728130ec5ea0&amp;callback=cbk"></script>
 <script type="text/javascript">
     //开启easy模式, 直接完成地铁图基本功能, 无需自己写交互
-    var mysubway;
+    var mySubway;
     window.cbk = function(){
-        mysubway = subway("mysubway", {
+        mySubway = subway("mysubway", {
             // easy: 1
             adcode:1100,
             theme: "colorful",
@@ -30,17 +30,17 @@
                 switch: true
             }
         });
-        mysubway.event.on("subway.complete", function () {
+        mySubway.event.on("subway.complete", function () {
         	// var opt = new Object();
         	// opt.type='start';
-    		// mysubway.addMarker('南锣鼓巷',opt);
+    		// mySubway.addMarker('南锣鼓巷',opt);
 
-    		// mysubway.addInfoWindow('南锣鼓巷');
+    		// mySubway.addInfoWindow('南锣鼓巷');
 
    //  		var start = '北苑', end = '天安门西';
-   //  		mysubway.setStart(start);
-			// mysubway.setEnd(end);
-   //  		mysubway.route(start, end);
+   //  		mySubway.setStart(start);
+			// mySubway.setEnd(end);
+   //  		mySubway.route(start, end);
 
    			/* var detailOpts = {
 			        type: "circle",
@@ -49,17 +49,17 @@
 			    };
 
 
-			mysubway.addCustomNode('南锣鼓巷', detailOpts);*/
+			mySubway.addCustomNode('南锣鼓巷', detailOpts);*/
 
 
-			// mysubway.showLine('8号线');
+			// mySubway.showLine('8号线');
 		
-			/*mysubway.getLineList(function(result){
+			/*mySubway.getLineList(function(result){
 				console.log(result);
 			});
 				*/	
 	
-			// mysubway.getCityList(function(result){
+			// mySubway.getCityList(function(result){
 			// 	for(var key in result) {
 			// 	    console.log(key +"  "+ result[key].city+"  "+result[key].name);  
 			// 	}
@@ -73,38 +73,38 @@
 		
 			
 
-		mysubway.event.on('subway.touch', function(){
-			mysubway.clearInfoWindow();
+		mySubway.event.on('subway.touch', function(){
+			mySubway.clearInfoWindow();
 		});
 
-		mysubway.event.on('lineName.touch', function(ev, info){
-			mysubway.showLine(info.id);
-			var select_obj = qs('#g-select');
-			mysubway.setFitView(select_obj);
-			var center = mysubway.getSelectedLineCenter();
-			mysubway.setCenter(center);
+		mySubway.event.on('lineName.touch', function(ev, info){
+			mySubway.showLine(info.id);
+			var select_obj = document.getElementById("g-select");
+			mySubway.setFitView(select_obj);
+			var center = mySubway.getSelectedLineCenter();
+			mySubway.setCenter(center);
 		});
 
-		mysubway.event.on('station.touch', function(ev,info){
+		mySubway.event.on('station.touch', function(ev,info){
 			var id = info.id;
-			mysubway.stopAnimation();
-			mysubway.addInfoWindow(id,{});
-			var center = mysubway.getStCenter(id);
-			mysubway.setCenter(center);
+			mySubway.stopAnimation();
+			mySubway.addInfoWindow(id,{});
+			var center = mySubway.getStCenter(id);
+			mySubway.setCenter(center);
 		});
 
-		mysubway.event.on('startStation.touch', function(ev,info){
-			mysubway.stopAnimation();
-			mysubway.clearInfoWindow();
-			mysubway.setStart(info.id, {});
+		mySubway.event.on('startStation.touch', function(ev,info){
+			mySubway.stopAnimation();
+			mySubway.clearInfoWindow();
+			mySubway.setStart(info.id, {});
 			startInfo = info;
 			route();
 		});
 
-		mysubway.event.on('endStation.touch', function(ev,info){
-			mysubway.stopAnimation();
-			mysubway.clearInfoWindow();
-			mysubway.setEnd(info.id, {});
+		mySubway.event.on('endStation.touch', function(ev,info){
+			mySubway.stopAnimation();
+			mySubway.clearInfoWindow();
+			mySubway.setEnd(info.id, {});
 			endInfo = info;
 			route();
 		});
@@ -113,7 +113,7 @@
 
 		function route(){
 			if (startInfo.id && endInfo.id) {
-                mysubway.route(startInfo.id, endInfo.id, {});
+                mySubway.route(startInfo.id, endInfo.id, {});
                 startInfo = {};
                 endInfo = {};
             }
@@ -122,39 +122,39 @@
     };
 
 		function getLines(){
-			mysubway.getLineList(function(result){
+			mySubway.getLineList(function(result){
 				MyJavaScript.returnLinesData(JSON.stringify(result));
 			});
         }
 
         function selectLine(id){
-        	mysubway.stopAnimation();
-        	mysubway.clearInfoWindow();
-			mysubway.showLine(id);
-			var center = mysubway.getSelectedLineCenter();
-			mysubway.setCenter(center);
-			var select_obj = qs('#g-select');
-			mysubway.setFitView(select_obj);
+        	mySubway.stopAnimation();
+        	mySubway.clearInfoWindow();
+			mySubway.showLine(id);
+			var select_obj = document.getElementById("g-select");
+			mySubway.setFitView(select_obj);
+			var center = mySubway.getSelectedLineCenter();
+			mySubway.setCenter(center);
         }
 
         function locationNow(longitude, latitude){
-        	mysubway.stopAnimation();
-        	mysubway.clearInfoWindow();
-        	mysubway.clearOverlays();
+        	mySubway.stopAnimation();
+        	mySubway.clearInfoWindow();
+        	mySubway.clearOverlays();
 
         	var locationStr = longitude+","+latitude;
         	console.log("location-->"+locationStr);
-        	var info = mysubway.getNearStation({lnglat: locationStr});
+        	var info = mySubway.getNearStation({lnglat: locationStr});
         	console.log("info--->"+info);
         	if (info!=false) {
-        		mysubway.removeCustomNode(info);
-        		mysubway.addCustomNode(info,{
+        		mySubway.removeCustomNode(info);
+        		mySubway.addCustomNode(info,{
 			        type: "circle",
 			        r: 14,
 			        customClass: "custom_circle"
 			    })
-        		var center = mysubway.getStCenter(info);
-        		mysubway.setCenter(center);
+        		var center = mySubway.getStCenter(info);
+        		mySubway.setCenter(center);
         	}
         }
 
