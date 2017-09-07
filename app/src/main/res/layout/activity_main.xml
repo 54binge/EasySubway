@@ -57,7 +57,7 @@
         </android.support.v7.widget.CardView>
     </io.codetail.widget.RevealLinearLayout>
 
-    <ImageView
+   <!-- <ImageView
         android:id="@+id/mLocation"
         android:layout_width="30dp"
         android:layout_height="30dp"
@@ -65,5 +65,5 @@
         android:layout_alignParentLeft="true"
         android:layout_margin="16dp"
         android:background="#70ff0000"
-        />
+        />-->
 </RelativeLayout>
