@@ -29,8 +29,8 @@ public class MyJavaScript {
         mWebView.evaluateJavascript("javascript:getLines()", null);
     }
 
-    public void showCitys() {
-        mWebView.evaluateJavascript("javascript:showCitys()", null);
+    public void showCities() {
+        mWebView.evaluateJavascript("javascript:showCities()", null);
     }
 
     public void selectLine(String lineId) {
@@ -45,10 +45,23 @@ public class MyJavaScript {
         mWebView.evaluateJavascript("javascript:setEndStation(" + stationId + ")", null);
     }
 
-    public void locationNow(String longitude, String latitude) {
-        mWebView.evaluateJavascript("javascript:locationNow(" + longitude + "," + latitude + ")", null);
+    public void locationOnResume(String longitude, String latitude) {
+        mWebView.evaluateJavascript("javascript:locationOnResume(" + longitude + "," + latitude + ")", null);
     }
 
+    public void locationWithCenter(String longitude, String latitude) {
+        mWebView.evaluateJavascript("javascript:locationWithCenter(" + longitude + "," + latitude + ")", null);
+    }
+
+    @JavascriptInterface
+    public void onLoadingCompleted() {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mValueCallback.onReceiveValue(ConstantValue.REQUEST_CODE_LOADING_COMPLETED, null);
+            }
+        });
+    }
 
     /*
     * [
@@ -73,7 +86,13 @@ public class MyJavaScript {
     }
 
     @JavascriptInterface
-    public void returnCitysData(String data) {
-        mValueCallback.onReceiveValue(ConstantValue.REQUEST_CODE_GET_CITYS, data);
+    public void returnCitiesData(final String data) {
+        mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                mValueCallback.onReceiveValue(ConstantValue.REQUEST_CODE_GET_CITIES, data);
+            }
+        });
+
     }
 }

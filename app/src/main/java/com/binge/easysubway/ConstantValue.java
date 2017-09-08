@@ -5,6 +5,7 @@ package com.binge.easysubway;
  */
 
 public class ConstantValue {
-    public static final String REQUEST_CODE_GET_CITYS = "100";
-    public static final String REQUEST_CODE_GET_LINES = "101";
+    public static final String REQUEST_CODE_LOADING_COMPLETED = "100";
+    public static final String REQUEST_CODE_GET_CITIES = "101";
+    public static final String REQUEST_CODE_GET_LINES = "102";
 }

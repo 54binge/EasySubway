@@ -17,6 +17,36 @@
 			        stroke-width: 0;
 			    }
 			</style>
+
+<style type="text/css">
+        .tip_out{
+            position: relative;
+        }
+        .tip{
+            position: absolute;
+
+            width: 100px;
+            left: -50px;
+            bottom: 10;
+        }
+        .tip_name{
+            background: rgba(0,0,0,0.7);
+            padding:10px 0;
+            text-align: center;
+            font-size: 14px;
+            color: #fff;
+            border-radius: 4px;
+        }
+        .tip .tip_start, .tip .tip_end{
+            float: left;
+        }
+        .tip_footer{
+                height: 10px;
+                background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABcAAAALCAYAAACUPhZAAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAG5JREFUeNpiNDY2FmNgYJgDxFIM1AOvgDidCcpIAeJn1DQYiB8zIQlQwwK4wSAOE5oEJRagGIxuOCUWYBiMzXByLMBqMC7DSbEAp8H4DCfGArwGEzIcnwUEDSbGcGwWEGUwsYYjW3CBWINBACDAACkeLdxbVjieAAAAAElFTkSuQmCC) center top no-repeat;
+                background-size: 21px 10px;
+        }
+</style>
+
 <script src="http://webapi.amap.com/subway?v=1.0&amp;key=feb07d10d989756de816728130ec5ea0&amp;callback=cbk"></script>
 <script type="text/javascript">
     //开启easy模式, 直接完成地铁图基本功能, 无需自己写交互
@@ -30,7 +60,9 @@
                 switch: true
             }
         });
-        mySubway.event.on("subway.complete", function () {
+
+        //TestCode
+        //mySubway.event.on("subway.complete", function () {
         	// var opt = new Object();
         	// opt.type='start';
     		// mySubway.addMarker('南锣鼓巷',opt);
@@ -68,9 +100,11 @@
 		
 
 			
-		});
+		//});
 
-		
+		mySubway.event.on("subway.complete", function () {
+			MyJavaScript.onLoadingCompleted();
+		});
 			
 
 		mySubway.event.on('subway.touch', function(){
@@ -137,7 +171,7 @@
 			mySubway.setCenter(center);
         }
 
-        function locationNow(longitude, latitude){
+        function locationWithCenter(longitude, latitude){
         	mySubway.stopAnimation();
         	mySubway.clearInfoWindow();
         	mySubway.clearOverlays();
@@ -153,8 +187,28 @@
 			        r: 14,
 			        customClass: "custom_circle"
 			    })
+
+        		mySubway.addInfoWindow(info,{
+			        content: '<div class="tip_out"><div class="tip"><div class="tip_name">离我最近</div><div class="tip_footer"></div></div></div>'
+			    });
+
         		var center = mySubway.getStCenter(info);
         		mySubway.setCenter(center);
+        	}
+        }
+
+        function locationOnResume(longitude, latitude){
+        	var locationStr = longitude+","+latitude;
+        	console.log("location-->"+locationStr);
+        	var info = mySubway.getNearStation({lnglat: locationStr});
+        	console.log("info--->"+info);
+        	if (info!=false) {
+        		mySubway.removeCustomNode(info);
+        		mySubway.addCustomNode(info,{
+			        type: "circle",
+			        r: 14,
+			        customClass: "custom_circle"
+			    })
         	}
         }
 

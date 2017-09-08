@@ -1,8 +1,10 @@
 package com.binge.easysubway;
 
+import android.Manifest;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -24,20 +26,44 @@ import com.gordonwong.materialsheetfab.MaterialSheetFab;
 import com.gordonwong.materialsheetfab.MaterialSheetFabEventListener;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
+
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
+
+import static com.binge.easysubway.ConstantValue.REQUEST_CODE_GET_CITIES;
+import static com.binge.easysubway.ConstantValue.REQUEST_CODE_GET_LINES;
+import static com.binge.easysubway.ConstantValue.REQUEST_CODE_LOADING_COMPLETED;
 
 /**
  * Created by Binge on 2017/9/7.
  */
+       /*
 
-public class MainActivity extends AppCompatActivity implements ValueCallback, SimpleAdapter.OnItemClickListener<Line>, AMapLocationListener {
+*/
+public class MainActivity extends AppCompatActivity implements ValueCallback, SimpleAdapter.OnItemClickListener<Line>, AMapLocationListener, EasyPermissions.PermissionCallbacks {
+
+    private String[] permissionArray = {Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_NETWORK_STATE,
+            Manifest.permission.ACCESS_WIFI_STATE,
+            Manifest.permission.CHANGE_WIFI_STATE,
+//            Manifest.permission.READ_PHONE_STATE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS};
 
     private static final String TAG = "MainActivity";
+    private static final int LOCATION_TIMEOUT = 20000;
 
     private SimpleAdapter<Line> mSimpleAdapter;
     private MaterialSheetFab<? extends View> mMaterialSheetFab;
     private MyJavaScript mJavaScript;
-    private List<Line> mDataList;
+    private Fab mShowLineBtn;
+    private View mLocation;
+    public AMapLocationClient mLocationClient;
+    private LocationType mCurrentLocationType = LocationType.MANUALLY;
+    private boolean isMapLoadingCompleted = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,6 +72,15 @@ public class MainActivity extends AppCompatActivity implements ValueCallback, Si
 
         LoadingWebView loadingWebView = (LoadingWebView) findViewById(R.id.mWebView);
         loadingWebView.loadUrl("file:///android_asset/subway.html");
+
+        mLocation = findViewById(R.id.mLocation);
+        mLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mCurrentLocationType = LocationType.MANUALLY;
+                location();
+            }
+        });
 
         mJavaScript = new MyJavaScript(new Handler());
         mJavaScript.setWebView(loadingWebView.getWebView());
@@ -56,9 +91,9 @@ public class MainActivity extends AppCompatActivity implements ValueCallback, Si
         int fabColor = ContextCompat.getColor(this, R.color.fab_color);
         int dialogColor = ContextCompat.getColor(this, R.color.dialog_bg_color);
 
-        Fab showLineBtn = (Fab) findViewById(R.id.mShowLineBtn);
+        mShowLineBtn = (Fab) findViewById(R.id.mShowLineBtn);
         View fabSheet = findViewById(R.id.mFabSheet);
-        mMaterialSheetFab = new MaterialSheetFab<>(showLineBtn, fabSheet, findViewById(R.id.mOverlay), dialogColor, fabColor);
+        mMaterialSheetFab = new MaterialSheetFab<>(mShowLineBtn, fabSheet, findViewById(R.id.mOverlay), dialogColor, fabColor);
         mMaterialSheetFab.setEventListener(new MaterialSheetFabEventListener() {
             @Override
             public void onShowSheet() {
@@ -66,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements ValueCallback, Si
             }
         });
 
-        mSimpleAdapter = new SimpleAdapter<Line>(R.layout.layout_item_line, mDataList) {
+        mSimpleAdapter = new SimpleAdapter<Line>(R.layout.layout_item_line, new ArrayList<Line>()) {
 
             @Override
             public void onBindViewData(RecyclerView.ViewHolder holder, Line line) {
@@ -84,44 +119,27 @@ public class MainActivity extends AppCompatActivity implements ValueCallback, Si
         initLocationClient();
     }
 
-    //声明mlocationClient对象
-    public AMapLocationClient mLocationClient;
-    //声明mLocationOption对象
-    public AMapLocationClientOption mLocationOption = null;
 
     private void initLocationClient() {
         mLocationClient = new AMapLocationClient(this);
-        //初始化定位参数
-        mLocationOption = new AMapLocationClientOption();
-        //设置定位监听
+        AMapLocationClientOption locationOption = new AMapLocationClientOption();
         mLocationClient.setLocationListener(this);
-        //设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
-        mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
-        //设置定位间隔,单位毫秒,默认为2000ms
-        mLocationOption.setInterval(2000);
-        //设置定位参数
-        mLocationClient.setLocationOption(mLocationOption);
-        // 此方法为每隔固定时间会发起一次定位请求，为了减少电量消耗或网络流量消耗，
-        // 注意设置合适的定位时间的间隔（最小间隔支持为1000ms），并且在合适时间调用stopLocation()方法来取消定位请求
-        // 在定位结束后，在合适的生命周期调用onDestroy()方法
-        // 在单次定位情况下，定位无论成功与否，都无需调用stopLocation()方法移除请求，定位sdk内部会移除
+        locationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+        locationOption.setOnceLocation(true);
+        locationOption.setNeedAddress(false);
+        locationOption.setLocationCacheEnable(true);
+        locationOption.setHttpTimeOut(LOCATION_TIMEOUT);
+        mLocationClient.setLocationOption(locationOption);
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        //启动定位
-        if (mLocationClient != null) {
-            mLocationClient.startLocation();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (mLocationClient != null) {
-            mLocationClient.stopLocation();
+        Log.d(TAG, "onResume: ");
+        if (isMapLoadingCompleted && checkPermission()) {
+//            mCurrentLocationType = LocationType.AUTO;
+//            location();
         }
     }
 
@@ -137,10 +155,27 @@ public class MainActivity extends AppCompatActivity implements ValueCallback, Si
     @Override
     public void onReceiveValue(String requestCode, String value) {
         Log.d(TAG, "onReceiveValue: 收到的data: " + value);
-        Type type = new TypeToken<List<Line>>() {
-        }.getType();
-        List<Line> lineList = new Gson().fromJson(value, type);
-        mSimpleAdapter.updateData(lineList);
+        switch (requestCode) {
+            case REQUEST_CODE_LOADING_COMPLETED:
+                Log.d(TAG, "onReceiveValue: REQUEST_CODE_LOADING_COMPLETED");
+                isMapLoadingCompleted = true;
+                mLocation.setVisibility(View.VISIBLE);
+                mShowLineBtn.setVisibility(View.VISIBLE);
+                if (checkPermission()) {
+                    mCurrentLocationType = LocationType.MANUALLY;
+                    location();
+                }
+                break;
+            case REQUEST_CODE_GET_CITIES:
+
+                break;
+            case REQUEST_CODE_GET_LINES:
+                Type type = new TypeToken<List<Line>>() {
+                }.getType();
+                List<Line> lineList = new Gson().fromJson(value, type);
+                mSimpleAdapter.updateData(lineList);
+                break;
+        }
     }
 
     @Override
@@ -151,10 +186,60 @@ public class MainActivity extends AppCompatActivity implements ValueCallback, Si
         }
     }
 
+
+    @AfterPermissionGranted(100)
+    public void location() {
+        if (mLocationClient != null) {
+            mLocationClient.startLocation();
+        } else {
+            Log.d(TAG, "onClick: mLocationClient = null");
+        }
+    }
+
+
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
+        String longitude = String.valueOf(aMapLocation.getLongitude());
+        String latitude = String.valueOf(aMapLocation.getLatitude());
+        Log.d(TAG, "onLocationChanged: " + longitude + "<---->" + latitude);
         if (mJavaScript != null) {
-            mJavaScript.locationNow(String.valueOf(aMapLocation.getLongitude()), String.valueOf(aMapLocation.getLatitude()));
+            if (mCurrentLocationType == LocationType.AUTO) {
+                mJavaScript.locationOnResume(longitude, latitude);
+            } else if (mCurrentLocationType == LocationType.MANUALLY) {
+                mJavaScript.locationWithCenter(longitude, latitude);
+            }
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    private boolean checkPermission() {
+        List<String> deniedList = new ArrayList<>(permissionArray.length);
+        for (String per : permissionArray) {
+            if (!EasyPermissions.hasPermissions(this, per)) {
+                deniedList.add(per);
+            }
+        }
+        if (deniedList.isEmpty()) {
+            return true;
+        }
+
+        Log.d(TAG, "checkPermission: 请求权限");
+        EasyPermissions.requestPermissions(this, "这个是什么", 100, deniedList.toArray(new String[]{}));
+        return false;
+    }
+
+    @Override
+    public void onPermissionsGranted(int requestCode, List<String> perms) {
+
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, List<String> perms) {
+        Log.d(TAG, requestCode + "onPermissionsDenied: " + perms.toString());
     }
 }

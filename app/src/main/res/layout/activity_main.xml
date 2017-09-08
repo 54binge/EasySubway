@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-    android:id="@+id/parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.binge.easysubway.MainActivity">
 
     <com.binge.easysubway.widget.LoadingWebView
@@ -18,6 +18,9 @@
         android:id="@+id/mShowLineBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
         android:layout_margin="16dp"
         android:src="@drawable/ic_subway"
         app:backgroundTint="#ffffff"
@@ -27,15 +30,12 @@
         app:layout_anchorGravity="bottom|right"
         app:pressedTranslationZ="12dp"
         app:rippleColor="#a6a6a6"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         />
 
     <com.gordonwong.materialsheetfab.DimOverlayFrameLayout
         android:id="@+id/mOverlay"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"/>
 
     <io.codetail.widget.RevealLinearLayout
         android:layout_width="match_parent"
@@ -47,7 +47,8 @@
         <android.support.v7.widget.CardView
             android:id="@+id/mFabSheet"
             android:layout_width="wrap_content"
-            android:layout_height="300dp">
+            android:layout_height="300dp"
+            android:minWidth="160dp">
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/mRecyclerView"
@@ -57,7 +58,7 @@
         </android.support.v7.widget.CardView>
     </io.codetail.widget.RevealLinearLayout>
 
-   <!-- <ImageView
+    <ImageView
         android:id="@+id/mLocation"
         android:layout_width="30dp"
         android:layout_height="30dp"
@@ -65,5 +66,5 @@
         android:layout_alignParentLeft="true"
         android:layout_margin="16dp"
         android:background="#70ff0000"
-        />-->
+        />
 </RelativeLayout>
