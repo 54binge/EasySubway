@@ -30,6 +30,7 @@
         app:layout_anchorGravity="bottom|right"
         app:pressedTranslationZ="12dp"
         app:rippleColor="#a6a6a6"
+        android:visibility="gone"
         />
 
     <com.gordonwong.materialsheetfab.DimOverlayFrameLayout
@@ -64,7 +65,16 @@
         android:layout_height="30dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
+        android:visibility="gone"
         android:layout_margin="16dp"
         android:background="#70ff0000"
         />
+
+    <include
+        android:id="@+id/errorLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+	android:visibility="gone"
+        layout="@layout/layout_error"/>
 </RelativeLayout>

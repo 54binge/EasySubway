@@ -7,17 +7,21 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.PermissionChecker;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebViewClient;
 import android.widget.TextView;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
+import com.binge.easysubway.permission.AfterPermissionGranted;
+import com.binge.easysubway.permission.EasyPermissions;
 import com.binge.easysubway.widget.Fab;
 import com.binge.easysubway.widget.LoadingWebView;
 import com.google.gson.Gson;
@@ -29,8 +33,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-import pub.devrel.easypermissions.AfterPermissionGranted;
-import pub.devrel.easypermissions.EasyPermissions;
 
 import static com.binge.easysubway.ConstantValue.REQUEST_CODE_GET_CITIES;
 import static com.binge.easysubway.ConstantValue.REQUEST_CODE_GET_LINES;
@@ -42,7 +44,7 @@ import static com.binge.easysubway.ConstantValue.REQUEST_CODE_LOADING_COMPLETED;
        /*
 
 */
-public class MainActivity extends AppCompatActivity implements ValueCallback, SimpleAdapter.OnItemClickListener<Line>, AMapLocationListener, EasyPermissions.PermissionCallbacks {
+public class MainActivity extends AppCompatActivity implements ValueCallback, SimpleAdapter.OnItemClickListener<Line>, AMapLocationListener, EasyPermissions.PermissionCallbacks, LoadingWebView.LoadingStateListener {
 
     private String[] permissionArray = {Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -64,14 +66,27 @@ public class MainActivity extends AppCompatActivity implements ValueCallback, Si
     public AMapLocationClient mLocationClient;
     private LocationType mCurrentLocationType = LocationType.MANUALLY;
     private boolean isMapLoadingCompleted = false;
+    private View mErrorLayout;
+    private LoadingWebView mLoadingWebView;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        LoadingWebView loadingWebView = (LoadingWebView) findViewById(R.id.mWebView);
-        loadingWebView.loadUrl("file:///android_asset/subway.html");
+        mLoadingWebView = (LoadingWebView) findViewById(R.id.mWebView);
+        mLoadingWebView.loadUrl("file:///android_asset/subway.html");
+        mLoadingWebView.setLoadingStateListener(this);
+
+        mErrorLayout = findViewById(R.id.errorLayout);
+        findViewById(R.id.retry_tv).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(mLoadingWebView != null){
+                    mLoadingWebView.reLoad();
+                }
+            }
+        });
 
         mLocation = findViewById(R.id.mLocation);
         mLocation.setOnClickListener(new View.OnClickListener() {
@@ -83,8 +98,8 @@ public class MainActivity extends AppCompatActivity implements ValueCallback, Si
         });
 
         mJavaScript = new MyJavaScript(new Handler());
-        mJavaScript.setWebView(loadingWebView.getWebView());
-        loadingWebView.addJavascriptInterface(mJavaScript, "MyJavaScript");
+        mJavaScript.setWebView(mLoadingWebView.getWebView());
+        mLoadingWebView.addJavascriptInterface(mJavaScript, "MyJavaScript");
 
         mJavaScript.setValueCallback(this);
 
@@ -119,7 +134,6 @@ public class MainActivity extends AppCompatActivity implements ValueCallback, Si
         initLocationClient();
     }
 
-
     private void initLocationClient() {
         mLocationClient = new AMapLocationClient(this);
         AMapLocationClientOption locationOption = new AMapLocationClientOption();
@@ -138,8 +152,8 @@ public class MainActivity extends AppCompatActivity implements ValueCallback, Si
         super.onResume();
         Log.d(TAG, "onResume: ");
         if (isMapLoadingCompleted && checkPermission()) {
-//            mCurrentLocationType = LocationType.AUTO;
-//            location();
+            mCurrentLocationType = LocationType.AUTO;
+            location();
         }
     }
 
@@ -220,7 +234,7 @@ public class MainActivity extends AppCompatActivity implements ValueCallback, Si
     private boolean checkPermission() {
         List<String> deniedList = new ArrayList<>(permissionArray.length);
         for (String per : permissionArray) {
-            if (!EasyPermissions.hasPermissions(this, per)) {
+            if (!EasyPermissions.hasPermissions(this, per) && PermissionChecker.checkSelfPermission(this, per) != PermissionChecker.PERMISSION_GRANTED) {
                 deniedList.add(per);
             }
         }
@@ -229,7 +243,7 @@ public class MainActivity extends AppCompatActivity implements ValueCallback, Si
         }
 
         Log.d(TAG, "checkPermission: 请求权限");
-        EasyPermissions.requestPermissions(this, "这个是什么", 100, deniedList.toArray(new String[]{}));
+        EasyPermissions.requestPermissions(this,  100, deniedList.toArray(new String[]{}));
         return false;
     }
 
@@ -241,5 +255,18 @@ public class MainActivity extends AppCompatActivity implements ValueCallback, Si
     @Override
     public void onPermissionsDenied(int requestCode, List<String> perms) {
         Log.d(TAG, requestCode + "onPermissionsDenied: " + perms.toString());
+        // TODO: 2017/9/10  权限拒绝处理
+    }
+
+    @Override
+    public void onLoadFinished() {
+        if(mErrorLayout.getVisibility() == View.VISIBLE){
+            mErrorLayout.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void onLoadError() {
+        mErrorLayout.setVisibility(View.VISIBLE);
     }
 }

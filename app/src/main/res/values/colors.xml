@@ -6,4 +6,6 @@
 
     <color name="fab_color">#FFFFFF</color>
     <color name="dialog_bg_color">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="retry_text_color">#FF0EDC37</color>
 </resources>

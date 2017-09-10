@@ -2,15 +2,22 @@ package com.binge.easysubway.widget;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by Administrator on 2017/9/1.
@@ -19,6 +26,8 @@ import android.widget.RelativeLayout;
 public class LoadingWebView extends RelativeLayout {
     private WebView mWebView;
     private ProgressBar mProgressBar;
+    private LoadingStateListener mLoadingStateListener;
+    private boolean isLoadingError = false;
 
     public LoadingWebView(Context context) {
         super(context);
@@ -77,12 +86,14 @@ public class LoadingWebView extends RelativeLayout {
 
         //其他细节操作
         webSettings.setCacheMode(WebSettings.LOAD_CACHE_ELSE_NETWORK); //关闭webview中缓存
+//        webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
         webSettings.setAllowFileAccess(false); //设置可以访问文件
         webSettings.setJavaScriptCanOpenWindowsAutomatically(false); //支持通过JS打开新窗口
         webSettings.setLoadsImagesAutomatically(true); //支持自动加载图片
         webSettings.setDefaultTextEncodingName("utf-8");//设置编码格式
 
-        mWebView.setWebChromeClient(new MyWebChromeClient());
+//        mWebView.setWebChromeClient(new MyWebChromeClient());
+        mWebView.setWebViewClient(new MyWebClient());
 
         if (isAboveVersionHONEYCOMB()) {
             mWebView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
@@ -96,11 +107,13 @@ public class LoadingWebView extends RelativeLayout {
 
         @Override
         public void onProgressChanged(WebView view, int newProgress) {
+            Log.d(TAG, "onProgressChanged: ------->加载完毕>>>" + newProgress);
             if (newProgress == 100) {
                 mProgressBar.setVisibility(GONE);
             } else {
-                if (mProgressBar.getVisibility() == GONE)
+                if (mProgressBar.getVisibility() == GONE) {
                     mProgressBar.setVisibility(VISIBLE);
+                }
                 mProgressBar.setProgress(newProgress);
             }
             super.onProgressChanged(view, newProgress);
@@ -108,18 +121,52 @@ public class LoadingWebView extends RelativeLayout {
 
     }
 
+    private class MyWebClient extends WebViewClient {
+        @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            super.onPageStarted(view, url, favicon);
+            isLoadingError = false;
+        }
+
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            super.onPageFinished(view, url);
+            mProgressBar.setVisibility(GONE);
+            if (mLoadingStateListener != null) {
+                if (isLoadingError) {
+                    mLoadingStateListener.onLoadError();
+                } else {
+                    mLoadingStateListener.onLoadFinished();
+
+                }
+            }
+        }
+
+        @Override
+        public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+            super.onReceivedError(view, request, error);
+            isLoadingError = true;
+        }
+    }
+
+    public void setLoadingStateListener(LoadingStateListener loadingStateListener) {
+        if (mWebView != null) {
+            mLoadingStateListener = loadingStateListener;
+        }
+    }
+
     public void loadUrl(String url) {
         mWebView.loadUrl(url);
     }
 
     @SuppressLint("JavascriptInterface")
-    public void addJavascriptInterface(Object object, String name){
-        if(mWebView != null && object != null && !TextUtils.isEmpty(name)){
+    public void addJavascriptInterface(Object object, String name) {
+        if (mWebView != null && object != null && !TextUtils.isEmpty(name)) {
             mWebView.addJavascriptInterface(object, name);
         }
     }
 
-    public void reLoad(){
+    public void reLoad() {
         mWebView.reload();
     }
 
@@ -130,7 +177,13 @@ public class LoadingWebView extends RelativeLayout {
         return false;
     }
 
-    public WebView getWebView(){
+    public WebView getWebView() {
         return mWebView;
+    }
+
+    public interface LoadingStateListener {
+        void onLoadFinished();
+
+        void onLoadError();
     }
 }
